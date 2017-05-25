@@ -118,7 +118,7 @@ int main(void)
     adc_init(ADC_LINE(3));
     int val;
     //network_uint32_t temp_data, air_hum_data, light_data, soil_hum_data;
-    uint16_t data_buf[4];
+    network_uint32_t data_buf[4];
     //char *entry_points[] = {"/temp", "/air-hum", "/light", "/soil-hum"};
     int sensors[] = {SAUL_SENSE_TEMP, SAUL_SENSE_HUM, SAUL_SENSE_COLOR, SOIL_HUM};
     uint8_t buf[GCOAP_PDU_BUF_SIZE];
@@ -132,7 +132,7 @@ int main(void)
                 sample_sensor(sensors[i], &val);
             }
             printf("%d\n", val);
-            data_buf[i] = val;
+            data_buf[i] = byteorder_htons(val);
         }
 
         char json_buf[128];
