@@ -137,7 +137,7 @@ int main(void)
 
         char json_buf[128];
         memset(json_buf, 0, 128);
-        sprintf(json_buf, "%.*s,%.*s,%.*s,%.*s", 
+        sprintf(json_buf, "%.*s%.*s%.*s%.*s", 
         2, (char *) &data_buf[0], 2, (char *) &data_buf[1], 2, (char *) &data_buf[2], 2, (char *) &data_buf[3]);
 
         gcoap_req_init(&pdu, &buf[0], GCOAP_PDU_BUF_SIZE, 2, "/data");
