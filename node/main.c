@@ -118,7 +118,7 @@ int main(void)
     adc_init(ADC_LINE(3));
     int val;
     //network_uint32_t temp_data, air_hum_data, light_data, soil_hum_data;
-    network_uint32_t data_buf[4];
+    network_uint16_t data_buf[4];
     //char *entry_points[] = {"/temp", "/air-hum", "/light", "/soil-hum"};
     int sensors[] = {SAUL_SENSE_TEMP, SAUL_SENSE_HUM, SAUL_SENSE_COLOR, SOIL_HUM};
     uint8_t buf[GCOAP_PDU_BUF_SIZE];
@@ -135,15 +135,9 @@ int main(void)
             data_buf[i] = byteorder_htons(val);
         }
 
-        char json_buf[128];
-        memset(json_buf, 0, 128);
-        sprintf(json_buf, "%.*s%.*s%.*s%.*s", 
-        2, (char *) &data_buf[0], 2, (char *) &data_buf[1], 2, (char *) &data_buf[2], 2, (char *) &data_buf[3]);
-
         gcoap_req_init(&pdu, &buf[0], GCOAP_PDU_BUF_SIZE, 2, "/data");
-        printf("%s\n", json_buf);
-        memcpy(pdu.payload, json_buf, strlen(json_buf));
-        len = gcoap_finish(&pdu, strlen(json_buf), COAP_FORMAT_TEXT);
+        memcpy(pdu.payload, (char *)data_buf, sizeof(data_buf));
+        len = gcoap_finish(&pdu, sizeof(data_buf), COAP_FORMAT_TEXT);
         _send(&buf[0], len, ADDRESS, PORT);
         xtimer_sleep(2);
     }
