@@ -1,0 +1,17 @@
+
+influxdb:
+    image: influxdb:alpine
+    expose:
+        - 8086
+    volumes:
+        - "./influxdb:/var/lib/influxdb"
+
+grafana:
+    build: ./grafana
+    links:
+        - influxdb:influxdb
+    volumes:
+        - "./grafana/db:/var/lib/grafana"
+        - "./grafana/etc:/etc/grafana"
+    ports:
+        - 3000:3000
