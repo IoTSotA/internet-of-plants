@@ -1,4 +1,4 @@
-const coap    = require('../') // or coap
+const coap    = require('coap') // or coap
     , server  = coap.createServer({type:'udp6'})
 
 function process_data(req, res)
