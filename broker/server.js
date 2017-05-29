@@ -38,8 +38,17 @@ function process_data(req, res)
     var data = [0,0,0,0];
     var input = req.payload.slice(4,12);
     var id = req.payload.slice(0,4).join("");
+    var tag;
     console.log(req.payload);
-    var js = {};
+    if(id == "3620325531")
+    {
+        tag = "Mendel";
+    }
+    else
+    {
+        tag = "Darwin";
+    }
+
     for(i=0;i<4;i++)
     {
         data[i] = input[2*i]*255 + input[2*i+1]; 
