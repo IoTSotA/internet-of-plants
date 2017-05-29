@@ -12,11 +12,12 @@
 #include "net/gcoap.h"
 #include "od.h"
 #include "fmt.h"
+#include "net/gnrc/netif.h"
 
 #define RES             ADC_RES_10BIT
 #define SOIL_HUM        2
-#define ADDRESS "fd00:dead:beef::1"
-#define PORT "5683"
+#define IOP_ADDRESS "fd00:dead:beef::1"
+#define IOP_PORT "5683"
 
 static void _resp_handler(unsigned req_state, coap_pkt_t* pdu)
 {
@@ -112,18 +113,26 @@ int sample_adc(int line, int *measure){
      return -1;
 }
 
+#define MAX_ADDR_LEN (8U)
 int main(void)
 {
     adc_init(ADC_LINE(2));
     adc_init(ADC_LINE(3));
     int val;
     //network_uint32_t temp_data, air_hum_data, light_data, soil_hum_data;
-    network_uint16_t data_buf[4];
+    network_uint16_t data_buf[8];
     //char *entry_points[] = {"/temp", "/air-hum", "/light", "/soil-hum"};
     int sensors[] = {SAUL_SENSE_TEMP, SAUL_SENSE_HUM, SAUL_SENSE_COLOR, SOIL_HUM};
     uint8_t buf[GCOAP_PDU_BUF_SIZE];
     coap_pkt_t pdu;
     size_t len;
+	kernel_pid_t ifs[GNRC_NETIF_NUMOF];
+	gnrc_netif_get(ifs);
+
+	uint8_t hwaddr[MAX_ADDR_LEN];
+	gnrc_netapi_get(ifs[0], NETOPT_ADDRESS, 0, hwaddr, sizeof(hwaddr));
+
+	memcpy(data_buf, &hwaddr[4], 4);
     while(1){
         for(int i = 0; i < 4; i++){
             if(i == 3){
@@ -132,13 +141,13 @@ int main(void)
                 sample_sensor(sensors[i], &val);
             }
             printf("%d\n", val);
-            data_buf[i] = byteorder_htons(val);
+            data_buf[i+4] = byteorder_htons(val);
         }
 
         gcoap_req_init(&pdu, &buf[0], GCOAP_PDU_BUF_SIZE, 2, "/data");
         memcpy(pdu.payload, (char *)data_buf, sizeof(data_buf));
         len = gcoap_finish(&pdu, sizeof(data_buf), COAP_FORMAT_TEXT);
-        _send(&buf[0], len, ADDRESS, PORT);
+        _send(&buf[0], len, IOP_ADDRESS, IOP_PORT);
         xtimer_sleep(2);
     }
     return 0;
