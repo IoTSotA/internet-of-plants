@@ -58,7 +58,7 @@ function process_data(req, res)
     influx.writePoints([
       {
         measurement: 'radio_data',
-        tags: { id: id },
+        tags: { id: tag },
         fields: { temp: data[0], airhum: data[1], light: data[2], soilhum: data[3] },
       }
     ]).then(() => {
