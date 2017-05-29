@@ -120,7 +120,7 @@ int main(void)
     adc_init(ADC_LINE(3));
     int val;
     //network_uint32_t temp_data, air_hum_data, light_data, soil_hum_data;
-    network_uint16_t data_buf[8];
+    char data_buf[12];
     //char *entry_points[] = {"/temp", "/air-hum", "/light", "/soil-hum"};
     int sensors[] = {SAUL_SENSE_TEMP, SAUL_SENSE_HUM, SAUL_SENSE_COLOR, SOIL_HUM};
     uint8_t buf[GCOAP_PDU_BUF_SIZE];
@@ -133,6 +133,9 @@ int main(void)
 	gnrc_netapi_get(ifs[0], NETOPT_ADDRESS, 0, hwaddr, sizeof(hwaddr));
 
 	memcpy(data_buf, &hwaddr[4], 4);
+
+	network_uint16_t current_data;
+
     while(1){
         for(int i = 0; i < 4; i++){
             if(i == 3){
@@ -141,13 +144,20 @@ int main(void)
                 sample_sensor(sensors[i], &val);
             }
             printf("%d\n", val);
-            data_buf[i+4] = byteorder_htons(val);
+			current_data = byteorder_htons(val);
+			memcpy(data_buf+4+2*i, &current_data, sizeof(network_uint16_t)); 
         }
 
         gcoap_req_init(&pdu, &buf[0], GCOAP_PDU_BUF_SIZE, 2, "/data");
         memcpy(pdu.payload, (char *)data_buf, sizeof(data_buf));
         len = gcoap_finish(&pdu, sizeof(data_buf), COAP_FORMAT_TEXT);
         _send(&buf[0], len, IOP_ADDRESS, IOP_PORT);
+		printf("Data: ");
+		for(int i=0;i<12;i++)
+		{
+			printf("%02x ", data_buf[i]);
+		}
+		puts(" ");
         xtimer_sleep(2);
     }
     return 0;
