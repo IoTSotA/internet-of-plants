@@ -49,6 +49,7 @@ function process_data(req, res)
         tag = "Darwin";
     }
 
+    console.log(tag);
     for(i=0;i<4;i++)
     {
         data[i] = input[2*i]*255 + input[2*i+1]; 
