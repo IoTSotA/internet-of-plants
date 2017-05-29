@@ -16,7 +16,7 @@
 
 #define RES             ADC_RES_10BIT
 #define SOIL_HUM        2
-#define IOP_ADDRESS "fd00:dead:beef::1"
+#define IOP_ADDRESS "2001:470::242:ac11:4"
 #define IOP_PORT "5683"
 
 static void _resp_handler(unsigned req_state, coap_pkt_t* pdu)
