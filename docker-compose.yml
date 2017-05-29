@@ -17,3 +17,10 @@ grafana:
         - "./grafana/etc:/etc/grafana"
     ports:
         - 3000:3000
+
+broker:
+    build: ./broker
+    links:
+        - influxdb:influxdb
+    ports:
+        - 5683:5683

@@ -6,7 +6,7 @@ const os = require('os')
 const Influx = require('influx');
 
 const influx = new Influx.InfluxDB({
-  host: '192.168.2.50',
+  host: 'influxdb',
   database: 'iop',
   schema: [
     {
